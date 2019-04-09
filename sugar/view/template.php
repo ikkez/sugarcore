@@ -4,7 +4,7 @@
 namespace Sugar\View;
 
 
-class Template extends Base implements FileViewInterface {
+class Template extends Base implements TemplateInterface {
 
 	protected $filePath = 'layout.html';
 
@@ -13,11 +13,23 @@ class Template extends Base implements FileViewInterface {
 	 */
 	public $engine;
 
+	public $rnd;
+
 	/**
 	 * Template constructor.
 	 */
 	function __construct() {
-		$this->engine = \Template::instance();
+		$this->engine = new \Template();
+		$this->rnd = rand(0,100);
+
+	}
+
+	/**
+	 * return used engine instance
+	 * @return mixed
+	 */
+	public function engine() {
+		return $this->engine;
 	}
 
 	/**
@@ -39,9 +51,17 @@ class Template extends Base implements FileViewInterface {
 	 * @param string $mime
 	 * @return mixed
 	 */
-	function render($mime='text/html') {
+	function render($mime=NULL) {
 		if (!empty($this->data))
 			\Base::instance()->mset($this->data);
+		// TODO: use custom HIVE only
 		return $this->engine->render($this->filePath,$mime);
+	}
+
+	/**
+	 * render the view and send to client
+	 */
+	function dump() {
+		echo $this->render('text/html');
 	}
 }

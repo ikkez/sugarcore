@@ -10,8 +10,8 @@
  * Copyright (c) 2018 ~ ikkez
  * Christian Knuth <ikkez0n3@gmail.com>
  *
- * @version 0.5.0
- * @date: 26.03.2018
+ * @version 1.0.0
+ * @date: 18.09.2018
  * @since: 29.04.2012
  **/
 
@@ -35,21 +35,21 @@ class Storage extends \Prefab {
 	);
 
 	const
-		ERROR_UnknownTypeOfDSN='DB of DSN type "%s" is not supported',
-		ERROR_NoNameDefined='You have to specify a name for the DB',
-		ERROR_DBNotLoaded='DB with name "%s" could not be loaded',
-		ERROR_ConfigNotFound='No Configuration found for DB "%s"',
+		E_UnknownTypeOfDSN='DB of DSN type "%s" is not supported',
+		E_NoNameDefined='You have to specify a name for the DB',
+		E_DBNotLoaded='DB with name "%s" could not be loaded',
+		E_ConfigNotFound='No Configuration found for DB "%s"',
 
-		ERROR_FileDB_DataPathMissing='You need to specify a path for Jig FileDB',
-		ERROR_FileDB_FormatMissing='You need to specify a file format for Jig FileDB',
-		ERROR_FileDB_UnknownFormat='Unknown file format selected for Jig DB',
+		E_FileDB_DataPathMissing='You need to specify a path for Jig FileDB',
+		E_FileDB_FormatMissing='You need to specify a file format for Jig FileDB',
+		E_FileDB_UnknownFormat='Unknown file format selected for Jig DB',
 
-		ERROR_SQL_NoHostDefined='You have to specify a host for "%s" DSN',
-		ERROR_SQL_NoDBDefined='You have to specify a DB for "%s" DSN',
-		ERROR_SQL_NoUserDefined='No Username was specified for "%s" DSN',
-		ERROR_SQL_NoPasswordDefined='Password missing for "%s" DSN',
+		E_SQL_NoHostDefined='You have to specify a host for "%s" DSN',
+		E_SQL_NoDBDefined='You have to specify a DB for "%s" DSN',
+		E_SQL_NoUserDefined='No Username was specified for "%s" DSN',
+		E_SQL_NoPasswordDefined='Password missing for "%s" DSN',
 
-		ERROR_SQlite_DataPathMissing='You need to specify conf.dataPath for SQlite';
+		E_SQlite_DataPathMissing='You need to specify conf.dataPath for SQlite';
 
 
 	/**
@@ -58,16 +58,19 @@ class Storage extends \Prefab {
 	 * @return mixed
 	 */
 	public function load($conf,$name=NULL) {
+		/** @var \Base $f3 */
+		$f3 = \Base::instance();
+		
 		// if string is provided, load config
 		if (is_string($conf)) {
 			if (!$name) $name=$conf;
 			$conf=Config::instance()->DB[$name];
 			if (!$conf)
-				trigger_error(sprintf(self::ERROR_ConfigNotFound,$name),E_USER_ERROR);
+				$f3->error(500,sprintf(self::E_ConfigNotFound,$name));
 		};
 
 		if (!$name)
-			trigger_error(self::ERROR_NoNameDefined,E_USER_ERROR);
+			$f3->error(500,self::E_NoNameDefined);
 
 		if (\Registry::exists('DB_'.$name))
 			return $this->get($name);
@@ -75,102 +78,101 @@ class Storage extends \Prefab {
 		$type=strtoupper($conf['type']);
 
 		if (!in_array($type,$this->dsnTypes))
-			trigger_error(sprintf(self::ERROR_UnknownTypeOfDSN,$conf['type']),
-			E_USER_ERROR);
+			$f3->error(500,sprintf(self::E_UnknownTypeOfDSN,$conf['type']));
 
-		switch ($type) {
-			case 'JIG':
+		try {
+			switch ($type) {
+				case 'JIG':
 
-				if (!array_key_exists('dir',$conf))
-					trigger_error(self::ERROR_FileDB_DataPathMissing,E_USER_ERROR);
+					if (!array_key_exists('dir',$conf))
+						$f3->error(500,self::E_FileDB_DataPathMissing);
 
-				$formatTypes=array(
-					'serialized'=>\DB\Jig::FORMAT_Serialized,
-					'json'=>\DB\Jig::FORMAT_JSON,
-				);
+					$formatTypes=array(
+						'serialized'=>\DB\Jig::FORMAT_Serialized,
+						'json'=>\DB\Jig::FORMAT_JSON,
+					);
 
-				if (!array_key_exists('format',$conf))
-					trigger_error(self::ERROR_FileDB_FormatMissing,E_USER_ERROR);
-				elseif (!array_key_exists($conf['format'],$formatTypes))
-					trigger_error(self::ERROR_FileDB_UnknownFormat,E_USER_ERROR);
+					if (!array_key_exists('format',$conf))
+						$f3->error(500,self::E_FileDB_FormatMissing);
+					elseif (!array_key_exists($conf['format'],$formatTypes))
+						$f3->error(500,self::E_FileDB_UnknownFormat);
 
-				$lazy = array_key_exists('lazy',$conf) ? (bool) $conf['lazy'] : false;
+					$lazy = array_key_exists('lazy',$conf) ? (bool) $conf['lazy'] : false;
 
-				$db=new \DB\Jig($conf['dir'],$formatTypes[$conf['format']],$lazy);
-				break;
+					$db=new \DB\Jig($conf['dir'],$formatTypes[$conf['format']],$lazy);
+					break;
 
-			case 'MYSQL':
-				if (!array_key_exists('host',$conf))
-					trigger_error(sprintf(self::ERROR_SQL_NoHostDefined,$name),
-						E_USER_ERROR);
-				if (!array_key_exists('dbname',$conf))
-					trigger_error(sprintf(self::ERROR_SQL_NoDBDefined,$name),
-						E_USER_ERROR);
-				if (!array_key_exists('user',$conf))
-					trigger_error(sprintf(self::ERROR_SQL_NoUserDefined,$name),
-						E_USER_ERROR);
-				if (!array_key_exists('password',$conf))
-					trigger_error(sprintf(self::ERROR_SQL_NoPasswordDefined,$name),
-						E_USER_ERROR);
+				case 'MYSQL':
+					if (!array_key_exists('host',$conf))
+						$f3->error(500,sprintf(self::E_SQL_NoHostDefined,$name));
+					if (!array_key_exists('dbname',$conf))
+						$f3->error(500,sprintf(self::E_SQL_NoDBDefined,$name));
+					if (!array_key_exists('username',$conf))
+						$f3->error(500,sprintf(self::E_SQL_NoUserDefined,$name));
+					if (!array_key_exists('password',$conf))
+						$f3->error(500,sprintf(self::E_SQL_NoPasswordDefined,$name));
 
-				$db=new \DB\SQL('mysql:host='.$conf['host'].
-					';port='.$conf['port'].';dbname='.$conf['dbname'],
-					$conf['user'],$conf['password']);
-				break;
+					$db=new \DB\SQL('mysql:host='.$conf['host'].
+						';port='.$conf['port'].';dbname='.$conf['dbname'],
+						$conf['username'],$conf['password'],[
+							\PDO::ATTR_TIMEOUT => isset($conf['timeout'])?$conf['timeout']:20,
+							\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
+						]);
+					break;
 
-			case 'PGSQL':
-				if (!array_key_exists('host',$conf))
-					trigger_error(sprintf(self::ERROR_SQL_NoHostDefined,$name),
-						E_USER_ERROR);
-				if (!array_key_exists('dbname',$conf))
-					trigger_error(sprintf(self::ERROR_SQL_NoDBDefined,$name),
-						E_USER_ERROR);
-				if (!array_key_exists('user',$conf))
-					trigger_error(sprintf(self::ERROR_SQL_NoUserDefined,$name),
-						E_USER_ERROR);
-				if (!array_key_exists('password',$conf))
-					trigger_error(sprintf(self::ERROR_SQL_NoPasswordDefined,$name),
-						E_USER_ERROR);
+				case 'PGSQL':
+					if (!array_key_exists('host',$conf))
+						$f3->error(500,sprintf(self::E_SQL_NoHostDefined,$name));
+					if (!array_key_exists('dbname',$conf))
+						$f3->error(500,sprintf(self::E_SQL_NoDBDefined,$name));
+					if (!array_key_exists('username',$conf))
+						$f3->error(500,sprintf(self::E_SQL_NoUserDefined,$name));
+					if (!array_key_exists('password',$conf))
+						$f3->error(500,sprintf(self::E_SQL_NoPasswordDefined,$name));
 
-				$db=new \DB\SQL('pgsql:host='.$conf['host'].';dbname='.$conf['dbname'],
-					$conf['user'],$conf['password']);
-				break;
+					$db=new \DB\SQL('pgsql:host='.$conf['host'].';dbname='.$conf['dbname'],
+						$conf['username'],$conf['password'],[
+							\PDO::ATTR_TIMEOUT => isset($conf['timeout'])?$conf['timeout']:30,
+							\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
+						]);
+					break;
 
-			case 'SQLSRV':
-				if (!array_key_exists('host',$conf))
-					trigger_error(sprintf(self::ERROR_SQL_NoHostDefined,$name),
-						E_USER_ERROR);
-				if (!array_key_exists('dbname',$conf))
-					trigger_error(sprintf(self::ERROR_SQL_NoDBDefined,$name),
-						E_USER_ERROR);
-				if (!array_key_exists('user',$conf))
-					trigger_error(sprintf(self::ERROR_SQL_NoUserDefined,$name),
-						E_USER_ERROR);
-				if (!array_key_exists('password',$conf))
-					trigger_error(sprintf(self::ERROR_SQL_NoPasswordDefined,$name),
-						E_USER_ERROR);
+				case 'SQLSRV':
+					if (!array_key_exists('host',$conf))
+						$f3->error(500,sprintf(self::E_SQL_NoHostDefined,$name));
+					if (!array_key_exists('dbname',$conf))
+						$f3->error(500,sprintf(self::E_SQL_NoDBDefined,$name));
+					if (!array_key_exists('username',$conf))
+						$f3->error(500,sprintf(self::E_SQL_NoUserDefined,$name));
+					if (!array_key_exists('password',$conf))
+						$f3->error(500,sprintf(self::E_SQL_NoPasswordDefined,$name));
 
-				$db=new \DB\SQL('sqlsrv:SERVER='.$conf['host'].';Database='.$conf['dbname'],
-					$conf['user'],$conf['password']);
-				break;
+					$db=new \DB\SQL('sqlsrv:SERVER='.$conf['host'].';Database='.$conf['dbname'].';'.
+						'LoginTimeout='.(isset($conf['timeout'])?$conf['timeout']:30),
+						$conf['username'],$conf['password']);
+					break;
 
-			case 'SQLITE':
-				if (!array_key_exists('path',$conf))
-					trigger_error(self::ERROR_SQlite_DataPathMissing,E_USER_ERROR);
-				$db=new \DB\SQL('sqlite:'.$conf['path']);
-				break;
+				case 'SQLITE':
+					if (!array_key_exists('path',$conf))
+						$f3->error(500,self::E_SQlite_DataPathMissing);
+					$db=new \DB\SQL('sqlite:'.$conf['path']);
+					break;
 
-			case 'MONGO':
-				if (!array_key_exists('host',$conf))
-					trigger_error(sprintf(self::ERROR_SQL_NoHostDefined,$name),
-						E_USER_ERROR);
-				if (!array_key_exists('name',$conf))
-					trigger_error(sprintf(self::ERROR_SQL_NoDBDefined,$name),
-						E_USER_ERROR);
+				case 'MONGO':
+					if (!array_key_exists('host',$conf))
+						$f3->error(500,sprintf(self::E_SQL_NoHostDefined,$name));
+					if (!array_key_exists('name',$conf))
+						$f3->error(500,sprintf(self::E_SQL_NoDBDefined,$name));
 
-				$db=new \DB\Mongo('mongodb://'.$conf['host'].':'.
-					$conf['port'],$conf['dbname']);
-				break;
+					$db=new \DB\Mongo('mongodb://'.$conf['host'].':'.
+						$conf['port'],$conf['dbname']);
+					break;
+			}
+
+
+		} catch (\Exception $e) {
+			echo $e->getMessage();
+			exit();
 		}
 		return isset($db)?\Registry::set('DB_'.$name,$db):FALSE;
 	}
@@ -185,7 +187,7 @@ class Storage extends \Prefab {
 		if (!\Registry::exists('DB_'.$name)) {
 			$db=$this->load($name);
 			if (!$db)
-				trigger_error(sprintf(self::ERROR_DBNotLoaded,$name),E_USER_ERROR);
+				\Base::instance()->error(500,sprintf(self::E_DBNotLoaded,$name));
 			return $db;
 		}
 		return \Registry::get('DB_'.$name);

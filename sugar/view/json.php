@@ -19,6 +19,6 @@ class JSON extends Base {
 	 */
 	function dump() {
 		header('Content-Type: application/json');
-		parent::render();
+		parent::dump();
 	}
 }

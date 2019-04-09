@@ -2,14 +2,20 @@
 
 namespace Sugar\Utility;
 
-class UI {
+class UI extends \Prefab {
+
+	protected $fw;
+	
+	function __construct() {
+		$this->fw = \Base::instance();
+	}
 
 	/**
 	 * trim absolute base path to make it compatible with relative document base
 	 * @param $val
 	 * @return string
 	 */
-	static public function baseTrim($val) {
+	public function baseTrim($val) {
 		return ltrim($val,'/');
 	}
 
@@ -18,10 +24,10 @@ class UI {
 	 * @param string $path
 	 * @return string
 	 */
-	static public function addQueryString($path) {
+	public function addQueryString($path) {
 		$url = parse_url($path);
 		parse_str(isset($url['query']) ? $url['query'] : '',$query);
-		$search = \Base::instance()->get('GET');
+		$search = $this->fw->get('GET');
 		$query = $query + $search;
 		$query_string = http_build_query($query);
 		return $url['path'].($query_string?'?'.$query_string:'');
@@ -30,15 +36,14 @@ class UI {
 	/**
 	 * get the first existing UI path for an asset
 	 * @param $val
+	 * @param bool $strict
 	 * @return mixed
 	 */
-	static public function uiPath($val) {
-		/** @var \Base $f3 */
-		$f3 = \Base::instance();
-		foreach($f3->split($f3->get('UI')) as $path)
+	public function uiPath($val,$strict=false) {
+		foreach($this->fw->split($this->fw->get('UI')) as $path)
 			if (file_exists($path.$val))
 				return $path.$val;
-		return $val;
+		return $strict ? FALSE : $val;
 	}
 
 	/**
@@ -47,8 +52,8 @@ class UI {
 	 * @param array $args
 	 * @return string
 	 */
-	static public function alias($name,$args=array()) {
-		return ltrim(\Base::instance()->alias($name,$args),'/');
+	public function alias($name,$args=array()) {
+		return ltrim($this->fw->alias($name,$args),'/');
 	}
 
 	/**

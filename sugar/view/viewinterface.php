@@ -6,21 +6,28 @@ namespace Sugar\View;
 Interface ViewInterface {
 
 	/**
-	 * returns the rendered view as string
+	 * render the view and send to client
 	 * @return string
 	 */
 	function dump();
 
 	/**
-	 * render the view and send to client
+	 * returns the rendered view as string
 	 */
 	function render();
 
 	/**
 	 * set data key
+	 * @param $key
 	 * @return array
 	 */
 	public function get($key);
+
+	/**
+	 * check if a data key exists
+	 * @return bool
+	 */
+	public function exists($key);
 
 	/**
 	 * get data key

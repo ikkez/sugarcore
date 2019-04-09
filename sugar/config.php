@@ -39,8 +39,11 @@ class Config extends \DB\Jig\Mapper {
 	 * persist from hive key
 	 */
 	public function persist() {
-		$this->copyfrom($this->key);
 		$this->save();
+	}
+
+	public function copyfromHive() {
+		$this->copyfrom($this->key);
 	}
 
 	static public function instance() {

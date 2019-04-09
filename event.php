@@ -8,27 +8,30 @@
  * compliance with the license. Any of the license terms and conditions
  * can be waived if you get permission from the copyright holder.
  *
- * Copyright (c) 2017 ~ ikkez
+ * Copyright (c) 2018 ~ ikkez
  * Christian Knuth <ikkez0n3@gmail.com>
  * https://github.com/ikkez/F3-Sugar/
  *
- * @version 0.5.2
- * @date: 01.11.2015
+ * @version 1.0.0
+ * @date: 01.11.2018
  **/
 class Event extends Prefab {
 
 	protected $f3;
 	protected $ekey;
+	protected $local_key;
 
 	/**
 	 * Event constructor.
-	 * @param null $obj
+	 * @param null $local_key
 	 */
-	public function __construct($obj=null) {
+	public function __construct($local_key=null) {
 		/** @var \Base $f3 */
 		$this->f3 = \Base::instance();
-		if ($obj)
-			$this->ekey = 'EVENTS_local.'.$this->f3->hash(spl_object_hash($obj)).'.';
+		if ($local_key) {
+			$this->local_key = $local_key;
+			$this->ekey = 'EVENTS_local.'.$local_key.'.';
+		}
 		else
 			$this->ekey = 'EVENTS.';
 	}
@@ -165,7 +168,7 @@ class Event extends Prefab {
 	 * @return Event
 	 */
 	public function watch($obj) {
-		return new self($obj);
+		return new self($this->f3->hash(spl_object_hash($obj)));
 	}
 
 	/**
@@ -174,5 +177,13 @@ class Event extends Prefab {
 	 */
 	public function unwatch($obj) {
 		$this->f3->clear('EVENTS_local.'.$this->f3->hash(spl_object_hash($obj)));
+	}
+
+	/**
+	 * drop own watching sensor on destruction
+	 */
+	function __destruct() {
+		if ($this->local_key)
+			$this->f3->clear('EVENTS_local.'.$this->local_key);
 	}
 }

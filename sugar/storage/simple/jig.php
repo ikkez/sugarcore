@@ -13,20 +13,27 @@ class Jig implements KeyValueInterface {
 	protected $_key;
 
 	function __construct(\DB\Jig $db, $fileName,$key='id') {
-		$this->mapper = new Mapper($db,'');
+		$this->mapper = new Mapper($db,$fileName);
 		$this->_key = $key;
 	}
 
-	function getOne($val) {
-		$data = $this->mapper->load(['@'.$this->_key.' = ?',$val]);
+	function load($key) {
+		$data = $this->mapper->load(['@'.$this->_key.' = ?',$key]);
 		return $data? $data->cast() : false;
 	}
 
-	function saveOne($data,$val) {
+	function save($key,$val) {
 		$this->mapper->reset();
-		$this->mapper->load(['@'.$this->_key.' = ?',$val]);
+		$this->mapper->load(['@'.$this->_key.' = ?', $key]);
 		$this->mapper->copyfrom($val);
 		$this->mapper->save();
+	}
+
+	function delete($key) {
+		$this->mapper->reset();
+		$this->mapper->load(['@'.$this->_key.' = ?',$key]);
+		if ($this->mapper->valid())
+			$this->mapper->erase();
 	}
 
 	function getAll() {
