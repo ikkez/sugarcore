@@ -16,7 +16,7 @@ $f3 = \Base::instance();
 ini_set('display_errors', 1);
 error_reporting(-1);
 
-if (@ini_get('max_execution_time') < 180)
+if (ini_get('max_execution_time') < 180)
 	@ini_set('max_execution_time',180);
 
 $f3->BITMASK = ENT_COMPAT|ENT_SUBSTITUTE;
@@ -29,7 +29,6 @@ if (!empty($f3->BASE)) {
 		$suffix=substr($suffix,0,-strlen($f3->BASE));
 }
 if (!empty($suffix)) {
-	var_dump($suffix);
 	$f3->concat('ROOT',$suffix);
 	$f3->concat('SERVER.DOCUMENT_ROOT',$suffix);
 }
