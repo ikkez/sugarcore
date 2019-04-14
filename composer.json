@@ -10,12 +10,8 @@
         "bcosca/fatfree-core": "dev-master#36916119c76f635a6b84df29fda98afa0ee28700 as 3.6.5",
         "ikkez/f3-falsum": "^2.6",
         "ikkez/f3-cortex": "^1.6",
-        "ikkez/f3-flash": "^1.0",
-        "ikkez/f3-pagination": "^1.4",
         "ikkez/f3-validation-engine": "^1.5",
         "ikkez/f3-template-directives": "^1.0",
-        "xfra35/f3-access": "^1.0",
-        "psr/log": "^1.0",
-        "ext-json": "1.*"
+        "xfra35/f3-access": "^1.0"
     }
 }
