@@ -38,8 +38,9 @@ class Repository {
 	function loadPackage($path) {
 		// find the package.ini
 		$pgk_file = 'package.ini';
-		$path = rtrim($path,'/').
-			'{/,/*/,/**/*/,/**/**/*/}'.$pgk_file;
+//		$path = rtrim($path,'/').
+//			'{/,/*/,/**/*/,/**/**/*/}'.$pgk_file;
+		$path = rtrim($path,'/').'/'.$pgk_file;
 		$scan = glob($path, GLOB_BRACE);
 
 		if (!empty($scan)) {
