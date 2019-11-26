@@ -91,6 +91,16 @@ class RouteHandler {
 		if (preg_match('/(.+)\h*(->|\.|::)\h*(.+)/s',$func,$parts)) {
 			// convert component name to class and register DIC rules
 			if ($parts[2]=='.') {
+				if ($parts[1][0]=='@') {
+					$dyn=substr($parts[1],1);
+					if (isset($args[$dyn])) {
+						$parts[1]=$args[$dyn];
+				}}
+//				if ($parts[3][0]=='@') {
+//					$dyn=substr($parts[3],1);
+//					if (isset($args[$dyn])) {
+//						$parts[3]=$args[$dyn];
+//				}}
 				$reg = \Sugar\Service\Registry::instance();
 				$conf = $reg->load($parts[1]);
 				$reg->mapClassesToComponents([
