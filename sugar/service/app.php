@@ -38,6 +38,13 @@ class App {
 			'format' => 'json',
 			'lazy' => false
 		],'core');
+
+		Storage::instance()->load([
+			'type'=>'JIG',
+			'dir' => NULL,
+			'format' => 'json',
+			'lazy' => false
+		],'memory');
 	}
 
 	/**
