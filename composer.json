@@ -2,6 +2,7 @@
     "name": "ikkez/sugarcore",
     "type": "library",
     "description": "Sugarcore base repository",
+    "license": "GPL-3.0",
     "authors": [
         {
             "name": "ikkez",
