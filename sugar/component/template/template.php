@@ -27,7 +27,7 @@ class Template extends Component implements TemplateInterface {
 		// forward engine events to event bus system
 		$engine = $this->view->engine();
 		if ($engine instanceof \Preview) {
-			$engine->afterrender(function($data,$fileName){
+			$engine->beforerender(function($data,$fileName){
 				$this->emit('beforerender',[
 					'obj'=>$this,
 					'fileName'=>$fileName
@@ -59,15 +59,6 @@ class Template extends Component implements TemplateInterface {
 	 */
 	function getTemplate() {
 		return $this->template;
-	}
-
-	/**
-	 * set single data key
-	 * @param $key
-	 * @param $value
-	 */
-	function setData($key,$value) {
-		$this->view->set($key,$value);
 	}
 
 	function init() {
