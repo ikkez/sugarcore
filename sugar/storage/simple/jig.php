@@ -39,8 +39,8 @@ class Jig implements KeyValueInterface {
 	function getAll() {
 		$all = $this->mapper->find();
 		$out=[];
-		foreach ($all as $record)
-			$out[]=$record->cast();
+		foreach ($all?:[] as $record)
+			$out[$record->{$this->_key}]=$record->cast();
 		return $out;
 	}
 }

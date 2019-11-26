@@ -7,20 +7,20 @@ trait Installable {
 
 	/**
 	 * do something while being installed
-	 * @param $data
+	 * @param $config
 	 * @return bool
 	 */
-	static function install($data) {
+	static function install($config) {
 		// overload if necessary
 		return true;
 	}
 
 	/**
 	 * do something when the component is being uninstalled
-	 * @param $data
+	 * @param $config
 	 * @return bool
 	 */
-	static function uninstall($data) {
+	static function uninstall($config) {
 		// overload if necessary
 		return true;
 	}

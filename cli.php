@@ -1,4 +1,18 @@
 <?php
+/**
+ *  Sugarcore - F3 Application Platform
+ *
+ *  The contents of this file are subject to the terms of the GNU General
+ *  Public License Version 3.0. You may not use this file except in
+ *  compliance with the license. Any of the license terms and conditions
+ *  can be waived if you get permission from the copyright holder.
+ *
+ *  Copyright (c) 2019
+ *  https://github.com/ikkez/
+ *
+ *  @author   Christian Knuth <mail@ikkez.de>
+ *
+ */
 
 // preflight system check
 if ((float)PCRE_VERSION<8.0)
@@ -7,29 +21,18 @@ if ((float)PCRE_VERSION<8.0)
 if (PHP_VERSION_ID < 50407)
 	die('You need at least PHP 5.4.7');
 
+if ($ext_ready = file_exists(EXT_LIB.'src/autoload.php'))
+	require_once(EXT_LIB.'src/autoload.php');
 require_once('vendor/autoload.php');
 
 /** @var \Base $f3 */
 $f3 = \Base::instance();
 
-$cli_version = '0.8.2';
-
-// init config
-$f3->config('inc/config.ini');
+// init core config
+$f3->config(__DIR__.'/config.ini');
+if (file_exists($config_ext=$f3->get('CORE.data_path').'config.ini'))
+	$f3->config($config_ext);
 \Sugar\Config::instance();
-
-// preflight
-if (!is_dir($f3->get('TEMP')) || !is_writable($f3->get('TEMP')))
-	$preErr[] = sprintf('please make sure that the \'%s\' directory is existing and writable.',$f3->get('TEMP'));
-if (!is_writable('inc/data/'))
-	$preErr[] = sprintf('please make sure that the \'%s\' directory is writable.','inc/data/');
-if (!is_writable('app/'))
-	$preErr[] = sprintf('please make sure that the \'%s\' directory is writable.','app/');
-
-if (isset($preErr)) {
-	header('Content-Type: text;');
-	die(implode("\n",$preErr));
-}
 
 // init DIC
 \Registry::set('DICE', $dice = new \Dice\Dice());

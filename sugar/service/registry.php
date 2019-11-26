@@ -16,6 +16,9 @@ class Registry extends \Prefab {
 	/** @var \Sugar\Storage\KeyValueInterface $resource */
 	protected $resource;
 
+	/** @var \Sugar\Storage\KeyValueInterface $resource */
+	protected $fallback_resource;
+
 	/** @var Dice $dice */
 	protected $DICE;
 
@@ -159,7 +162,17 @@ class Registry extends \Prefab {
 	 * @return mixed
 	 */
 	function exists($name) {
-		return $this->resource->load($name);
+		$out = $this->resource->load($name);
+		if ($this->fallback_resource) {
+			if ($out) {
+				$out_ext = $this->fallback_resource->load($name);
+				if (is_array($out_ext))
+					$out = array_replace_recursive($out,$out_ext);
+			} else {
+				$out = $this->fallback_resource->load($name);
+			}
+		}
+		return $out;
 	}
 
 	/**
@@ -259,8 +272,27 @@ class Registry extends \Prefab {
 		return $this->resource->save($name, $settings);
 	}
 
-
+	/**
+	 * remove a component configuration from the registry
+	 * @param $name
+	 * @return mixed
+	 */
 	public function remove($name) {
 		return $this->resource->delete($name);
+	}
+
+	/**
+	 * return component storage handler
+	 * @return \Sugar\Storage\KeyValueInterface
+	 */
+	public function getModel() {
+		return $this->resource;
+	}
+
+	/**
+	 * @param $model
+	 */
+	public function enableHIVEComponents() {
+		$this->fallback_resource = new \Sugar\Storage\Simple\Hive('COMPONENTS');
 	}
 }

@@ -104,6 +104,7 @@ class Template extends Component implements TemplateInterface {
 			\Template\Tags\Form::initAll($engine);
 			\Template\Tags\Image::init('image',$engine,[
 				'temp_dir' => 'ui/compressed/img/',
+				'check_UI_path' => TRUE,
 				'not_found_callback' => function($filePath) {
 					$this->broadcast('log.warning',['msg'=>'File not found: "'.$filePath.'"'],$this);
 				}

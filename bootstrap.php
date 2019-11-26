@@ -1,23 +1,28 @@
 <?php
 
-// system check
-if ((float)PCRE_VERSION<8.0)
-	trigger_error('PCRE version is out of date');
+/**
+ *  Sugarcore - F3 Application Platform
+ *
+ *  The contents of this file are subject to the terms of the GNU General
+ *  Public License Version 3.0. You may not use this file except in
+ *  compliance with the license. Any of the license terms and conditions
+ *  can be waived if you get permission from the copyright holder.
+ *
+ *  Copyright (c) 2019
+ *  https://github.com/ikkez/
+ *
+ *  @author   Christian Knuth <mail@ikkez.de>
+ *
+ */
 
-if (PHP_VERSION_ID < 50407)
-	die('You need at least PHP 5.4.7');
-
-// composer autoloader for required packages and dependencies
-require __DIR__.'/../vendor/autoload.php';
+require EXT_LIB."src/autoload.php";
+require "vendor/autoload.php";
 
 /** @var \Base $f3 */
 $f3 = \Base::instance();
 
 ini_set('display_errors', 1);
 error_reporting(-1);
-
-if (ini_get('max_execution_time') < 180)
-	@ini_set('max_execution_time',180);
 
 $f3->BITMASK = ENT_COMPAT|ENT_SUBSTITUTE;
 
@@ -34,21 +39,51 @@ if (!empty($suffix)) {
 }
 
 // init core config
-$f3->config('inc/config.ini');
-\Sugar\Config::instance();
+$f3->config(__DIR__.'/config.ini');
+if (file_exists($config_ext=$f3->get('CORE.data_path').'config.ini'))
+	$f3->config($config_ext);
 
-// preflight
-if (!is_dir($f3->get('TEMP')) || !is_writable($f3->get('TEMP')))
-	$preErr[] = sprintf('please make sure that the \'%s\' directory is existing and writable.',$f3->get('TEMP'));
-if (!is_writable('inc/data/'))
-	$preErr[] = sprintf('please make sure that the \'%s\' directory is writable.','inc/data/');
-if (!is_writable('app/'))
-	$preErr[] = sprintf('please make sure that the \'%s\' directory is writable.','app/');
+$config = \Sugar\Config::instance();
 
-if (isset($preErr)) {
-	header('Content-Type: text;');
-	die(implode("\n",$preErr));
+// system check & base install
+$log=[];
+if (!$config->exists('install') || $config->install) {
+	$log[]='<p>Running setup.</p>';
+	\Sugar\Service\Setup::instance()->install_base();
+	$log[]='<p>Done.</p>';
 }
+if (!$config->exists('preflight') || $config->preflight) {
+	$log[]='<p>Running system preflight tests</p>';
+	$preRes = \Sugar\Service\Setup::instance()->preflight();
+	$preErr=[];
+	foreach ($preRes as $test) {
+		if ($test['status'] === FALSE) {
+			$preErr[] = '<span class="red">FAILED</span>: '.$test['text'];
+		}
+	}
+	if (empty($preErr) || $f3->exists('GET.check_preflight')) {
+		$config->preflight=FALSE;
+		if (!$config->exists('install'))
+			$config->install=FALSE;
+		$config->save();
+		$f3->reroute($f3->PATH);
+	} else {
+		$log[]="<strong>Problems found:</strong>";
+		$log[]='<ul><li>'.implode("</li><li>",$preErr).'</li></ul>';
+		$log[]='<p>Please fix problems above.<br> <a href="?">test again</a> or <a href="?check_preflight"> skip (I know what I\'m doing)</a></p>';
+	}
+}
+if ($log) {
+	header('Content-Type: text/html');
+	$body=<<<HTML
+	<html><title>Sugarcore Install</title><head><style>*{font-family: Verdana;} code{ background: #e3e3e3; padding: 5px;} pre{padding: 15px; background: #e3e3e3; } pre code{padding: 0;} .red{color:darkred}</style></head><body>%s</body></html>
+HTML;
+	echo sprintf($body,implode($log));
+	die();
+}
+
+if (ini_get('max_execution_time') < 60)
+	@ini_set('max_execution_time',60);
 
 // init Dependency Injection Container
 \Registry::set('DICE', $dice = new \Dice\Dice());
@@ -58,16 +93,6 @@ $f3->set('CONTAINER', function($class,$args=null) use ($dice) {
 	} else
 		return $dice->create($class,$args?:[]);
 });
-
-//$f3->route('GET /vue', function($f3){
-//	$f3->ONERROR = NULL;
-//	$f3->AUTOLOAD = 'app/admin/,ext/,inc/';
-//	$f3->UI = 'app/admin/ui/';
-//	$view = new \View\DynamicVue();
-//	$view->setVueFile('templates/content/user/user.vue');
-//	$view->render();
-//});
-//
 
 
 // init front controller

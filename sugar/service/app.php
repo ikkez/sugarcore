@@ -1,5 +1,20 @@
 <?php
 
+/**
+ *  Sugarcore - Application Controller
+ *
+ *  The contents of this file are subject to the terms of the GNU General
+ *  Public License Version 3.0. You may not use this file except in
+ *  compliance with the license. Any of the license terms and conditions
+ *  can be waived if you get permission from the copyright holder.
+ *
+ *  Copyright (c) 2019
+ *  https://github.com/ikkez/
+ *
+ *  @author   Christian Knuth <mail@ikkez.de>
+ *
+ */
+
 namespace Sugar\Service;
 
 
@@ -10,7 +25,6 @@ class App {
 
 	protected
 		$f3,
-//		$graph,
 		$path;
 
 	function __construct() {
@@ -37,6 +51,9 @@ class App {
 		$app_conf = array_merge([
 			'type' => 'app'
 		],$params);
+
+		if (!preg_match('/^\w+$/',$key))
+			user_error(sprintf('Invalid app key %s',$this->f3->stringify($key)),E_USER_ERROR);
 
 		// default app path based on key within global apps dir
 		$app_path = $this->path.rtrim($key,'/').'/';
@@ -73,7 +90,9 @@ class App {
 			$this->f3->error(400,'The package.ini seems to be empty.');
 		} else {
 			$app_conf = array_merge($package_conf,$app_conf);
-			if (empty($app_conf['name']))
+			if (!empty($app_conf['meta']['title']))
+				$app_conf['name'] = $app_conf['meta']['title'];
+			else
 				$app_conf['name'] = $key;
 		}
 
@@ -89,6 +108,12 @@ class App {
 			$config->apps = [];
 
 		$config->apps[$key]=$app_conf;
+		
+		if (isset($app_conf['depends']['composer'])) {
+			$dep=Dependency::instance(Registry::instance());
+			$dep->addDependenciesFromConfig($app_conf);
+			$dep->updateDependencies();
+		}
 
 		// make default
 		if ($newDefault) {
@@ -106,6 +131,9 @@ class App {
 	 */
 	function create($key,$params=[],$newDefault=FALSE) {
 		$app_path = $this->path.rtrim($key,'/').'/';
+
+		if (!preg_match('/^\w+$/',$key))
+			user_error(sprintf('Invalid app key %s',$this->f3->stringify($key)),E_USER_ERROR);
 
 		// file system checks
 		if (is_dir($app_path))
@@ -206,17 +234,19 @@ PHP;
 	function select() {
 		$config = Config::instance();
 		$enabled=NULL;
-		foreach ($config->apps as $key=>$app)
-			if (isset($app['enable_on']))
-				foreach ($app['enable_on']?:[] as $type => $value) {
-					if ($type == 'path' && preg_match('/^\/'.preg_quote($r=trim($value,'/'),'/')
-							.'(?:$|\/.*)/iu',$this->f3->get('PATH'))) {
-						$enabled = $key;
-						$this->f3->set('APP.ROUTE',$r);
+		if ($config->exists('apps'))
+			foreach ($config->apps as $key=>$app)
+				if (isset($app['enable_on']))
+					foreach ($app['enable_on']?:[] as $type => $value) {
+						if ($type == 'path' && 
+							preg_match('/^\/'.preg_quote($r=trim($value,'/'),'/')
+								.'(?:$|\/.*)/iu',$this->f3->get('PATH'))) {
+							$enabled = $key;
+							$this->f3->set('APP.ROUTE',$r);
+						}
+						elseif ($type=='host' && $this->f3->get('HOST') == $value)
+							$enabled = $key;
 					}
-					elseif ($type=='host' && $this->f3->get('HOST') == $value)
-						$enabled = $key;
-				}
 		return $enabled;
 	}
 
@@ -234,7 +264,7 @@ PHP;
 			$config = Config::instance();
 			if (!empty($config->default_app))
 				$key = $config->default_app;
-			else $this->f3->error(400,'No default application defined.');
+			else die('System running, but no application defined.');
 		}
 
 		if (!array_key_exists($key,$config->apps)) {
@@ -267,15 +297,6 @@ PHP;
 			$this->f3->set('LOCALES',implode(';',$locs).';'.$this->f3->get('LOCALES'));
 		}
 
-//		if ($app['type']=='flow') {
-//			$graph = new \Sugar\Flow\Graph($this->f3->get('CORE.active_app.name'));
-//
-////			$graph->build($this->f3->get('APP.graph'));
-//			$cmds = $graph->parse($app['path'].'app.ini');
-//			$graph->build($cmds);
-//			$this->graph = $graph;
-//		}
-
 		return TRUE;
 	}
 
@@ -288,12 +309,16 @@ PHP;
 		if ($this->f3->exists('CORE.active_app',$app)) {
 
 			// init component registry
-			// config registry
-			$reg = Registry::instance(new \Sugar\Storage\Simple\Hive('COMPONENTS'));
+			if (!$this->f3->exists('CORE.registry_type',$reg_type) || strtolower($reg_type)=='hive') {
+				// config registry
+				$reg = Registry::instance(new \Sugar\Storage\Simple\Hive('COMPONENTS'));
 
-			// json db registry
-//			$reg = Registry::instance(new \Sugar\Storage\Simple\Jig(
-//				Storage::instance()->get('core'),'registry.json','name'));
+			} elseif (strtolower($reg_type)=='jig') {
+				// json db registry
+				$reg = Registry::instance(new \Sugar\Storage\Simple\Jig(
+					Storage::instance()->get('core'),'registry.json','name'));
+				$reg->enableHIVEComponents();
+			}
 
 			if ($this->f3->exists('DIC.preload',$preload))
 				$reg->mapClassesToComponents($preload);
@@ -316,14 +341,10 @@ PHP;
 					$app->run();
 					break;
 
-				case 'flow':
-//				$this->f3->call($app['run'],[$app['name']]);
-//				$this->graph->run('ReadFile.in.source');
-					break;
 			}
 
 		} else {
-			$this->f3->error(400, 'No application loaded');
+			die('No application loaded');
 		}
 
 	}

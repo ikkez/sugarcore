@@ -33,6 +33,14 @@ class CLI extends \Prefab {
 	];
 
 
+	protected $formattable=TRUE;
+
+	function __construct() {
+		if (stripos(PHP_OS, 'WIN') === 0 && (!function_exists('sapi_windows_vt100_support')
+			|| sapi_windows_vt100_support(STDOUT,true) === FALSE))
+			$this->formattable = false;
+	}
+
 	/**
 	 * render a colorized and styled string
 	 * @param $value
@@ -58,9 +66,12 @@ class CLI extends \Prefab {
 					$format[]=$id;
 		}
 
-		return ($format)
+		$out = ($format && $this->formattable)
 			? self::ESC.'['.implode(';',$format)."m".$value.self::ESC.'[0m'
 			: $value;
+		return (!$this->formattable && extension_loaded('iconv'))
+			? iconv('utf-8', 'cp850', $out)
+			: $out;
 	}
 
 
@@ -68,7 +79,8 @@ class CLI extends \Prefab {
 	 * clear console screen
 	 */
 	function clear() {
-		echo self::ESC."[2J"."\n\r";
+		if ($this->formattable)
+			echo self::ESC."[2J"."\n\r";
 	}
 
 
