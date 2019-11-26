@@ -343,11 +343,14 @@ PHP;
 
 				case 'app':
 					// ad-hoc configure via registry
-					/** @var App $app
+					/** @var \Sugar\App $app
 					 */
-					$app = $reg->create($app['name'],$app);
+					$app = $reg->create($app['key'],$app);
+					$app->emit('beforeLoad');
 					$app->load();
+					$app->emit('beforeRun');
 					$app->run();
+					$app->emit('afterRun');
 					break;
 
 			}

@@ -71,6 +71,7 @@ class RouteHandler {
 		// which allows to get the controller class from the container
 		if (is_string($handler)) {
 			$this->f3->route($pattern, function($f3,$args) use ($handler) {
+					\Event::instance()->emit('route.call','route: '.$f3->PATH.' > '.((string)$handler));
 					return $f3->call(
 						$this->grab($handler,$args)
 						,[$f3,$args],'beforeroute,afterroute');

@@ -77,6 +77,7 @@ trait ComponentTrait {
 			$this->settings = array_replace_recursive($this->settings,$config);
 		}
 
+		$this->broadcast('component.load',['name'=>$this->_name,'config'=>$this->config],$this);
 
 		if (!empty($this->settings['components'])) {
 			foreach ($this->settings['components'] as $key=>&$component) {
@@ -128,6 +129,8 @@ trait ComponentTrait {
 		if (!$parent && method_exists($this,'ready'))
 			$this->ready();
 
+		$this->broadcast('component.ready',['name'=>$this->_name,'config'=>$this->config],$this);
+
 	}
 
 	/**
@@ -162,7 +165,13 @@ trait ComponentTrait {
 	function emit($key,$args=null,&$context=[],$hold=true) {
 		if (!$this->ev_local)
 			$this->ev_local = $this->ev->watch($this);
-		return $this->ev_local->emit($key,$args,$context,$hold);
+		if ($track = $this->ev_local->has($key)) {
+			$this->broadcast('component.port.open',['name'=>$this->_name,'config'=>$this->config,'port'=>$key],$this);
+		}
+		$out = $this->ev_local->emit($key,$args,$context,$hold);
+		if ($track)
+			$this->broadcast('component.port.close',['name'=>$this->_name,'config'=>$this->config,'port'=>$key],$this);
+		return $out;
 	}
 
 	/**
