@@ -304,6 +304,8 @@ PHP;
 			$this->f3->set('LOCALES',implode(';',$locs).';'.$this->f3->get('LOCALES'));
 		}
 
+		$this->f3->copy('CORE.active_app','COMPONENTS.'.$key);
+
 		return TRUE;
 	}
 
