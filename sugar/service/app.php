@@ -115,7 +115,7 @@ class App {
 			$config->apps = [];
 
 		$config->apps[$key]=$app_conf;
-		
+
 		if (isset($app_conf['depends']['composer'])) {
 			$dep=Dependency::instance(Registry::instance());
 			$dep->addDependenciesFromConfig($app_conf);

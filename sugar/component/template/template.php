@@ -3,7 +3,9 @@
 namespace Sugar\Component\Template;
 
 use Sugar\Component;
+use Sugar\ComponentTrait;
 use Sugar\Utility\UI;
+use Sugar\View\Base;
 use Sugar\View\TemplateInterface;
 
 class Template extends Component implements TemplateInterface {
@@ -131,7 +133,11 @@ class Template extends Component implements TemplateInterface {
 		if ($this->template)
 			$this->view->setTemplate($this->template);
 
-		$this->emit('render',[$this]);
+		$this->emit('render',[
+			'fileName'=>$this->template,
+			'engine'=>get_class($this->engine()),
+			'data' => $this->view->getData()
+		],$this);
 
 		return $this->view->render();
 	}
@@ -176,6 +182,22 @@ class Template extends Component implements TemplateInterface {
 	 */
 	public function engine() {
 		return $this->view->engine();
+	}
+
+	/**
+	 * set all data
+	 * @param $data
+	 */
+	function setData($data) {
+		$this->data = $data;
+	}
+
+	/**
+	 * get all data
+	 * @return array
+	 */
+	function getData() {
+		return $this->data;
 	}
 
 	function __call($name,$arguments) {

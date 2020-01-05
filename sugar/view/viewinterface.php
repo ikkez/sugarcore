@@ -35,4 +35,15 @@ Interface ViewInterface {
 	 * @param $val
 	 */
 	public function set($key,$val);
+
+	/**
+	 * get data array
+	 */
+	public function getData();
+
+	/**
+	 * set data array
+	 * @param array $data
+	 */
+	public function setData($data);
 }
