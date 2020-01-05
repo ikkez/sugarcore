@@ -100,7 +100,7 @@ class Dependency extends \Prefab {
 		if (!$this->config->exists('dependencies')) {
 			$this->config->dependencies=[];
 		}
-		$all = $out=array_replace_recursive($conf,$this->config->dependencies);
+		$all = array_replace_recursive($this->config->dependencies,$conf);
 		$this->config->dependencies = $all;
 		$this->config->save();
 	}
