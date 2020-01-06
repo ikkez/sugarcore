@@ -72,8 +72,8 @@ trait ComponentTrait {
 							$this->{$key}=$val;
 					}
 				}
-				unset($config['config']);
 			}
+			unset($config['config']);
 			$this->settings = array_replace_recursive($this->settings,$config);
 		}
 
@@ -129,7 +129,7 @@ trait ComponentTrait {
 		if (!$parent && method_exists($this,'ready'))
 			$this->ready();
 
-		$this->broadcast('component.ready',['name'=>$this->_name,'config'=>$this->config],$this);
+		$this->broadcast('component.ready',['name'=>$this->_name,'config'=>$this->config,'settings'=>$this->settings],$this);
 
 	}
 
