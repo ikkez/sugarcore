@@ -228,6 +228,13 @@ class Registry extends \Prefab {
 
 		// get instance configuration
 		$config = $this->load($name,$conf);
+
+		// receive alias / singleton object
+		if ($config && isset($config['alias']) && $config['alias'] == $name
+			&& \Registry::exists('$'.$name)) {
+			return \Registry::get('$'.$name);
+		}
+
 		$this->setDicRules($name,$config,$parent);
 
 		if ($config) {
@@ -243,6 +250,12 @@ class Registry extends \Prefab {
 
 			/** @var Component $obj */
 			$obj = $this->DICE->create($classType);
+
+			if (isset($config['alias'])) {
+				// save alias for singleton usage
+				\Registry::set('$'.$config['alias'],$obj);
+				$this->cached_configs[$config['alias']]=$config;
+			}
 			return $obj;
 
 		} else
