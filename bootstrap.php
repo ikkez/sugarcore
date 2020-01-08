@@ -94,7 +94,6 @@ $f3->set('CONTAINER', function($class,$args=null) use ($dice) {
 		return $dice->create($class,$args?:[]);
 });
 
-
 // init front controller
 $app = new \Sugar\Service\App();
 $key = $app->select();

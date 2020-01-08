@@ -36,7 +36,7 @@ class App {
 			'type'=>'JIG',
 			'dir' => $this->f3->get('CORE.data_path'),
 			'format' => 'json',
-			'lazy' => false
+			'lazy' => true
 		],'core');
 
 		Storage::instance()->load([
