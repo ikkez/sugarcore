@@ -229,10 +229,17 @@ class Registry extends \Prefab {
 		// get instance configuration
 		$config = $this->load($name,$conf);
 
-		// receive alias / singleton object
-		if ($config && isset($config['alias']) && $config['alias'] == $name
-			&& \Registry::exists('$'.$name)) {
-			return \Registry::get('$'.$name);
+		if ($config) {
+			// receive app instance if already existing
+			if (isset($config['type']) && $config['type']=='app'
+				&& \Registry::exists('$'.$config['class'])) {
+				return \Registry::get('$'.$config['class']);
+			}
+			// receive alias / singleton object
+			if (isset($config['alias']) && $config['alias'] == $name
+				&& \Registry::exists('$'.$name)) {
+				return \Registry::get('$'.$name);
+			}
 		}
 
 		$this->setDicRules($name,$config,$parent);

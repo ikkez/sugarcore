@@ -340,6 +340,7 @@ PHP;
 			if ($this->f3->exists('DIC.rules',$rules))
 				$reg->addDicRules($rules);
 
+			$app['alias'] = $app['class'];
 			switch ($app['type']) {
 				case 'controller':
 					// run the defined handler
