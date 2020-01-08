@@ -300,8 +300,13 @@ PHP;
 
 		// additional language dictionaries
 		if (!$this->f3->devoid('APP.LOCALES',$loc)) {
+			$ttl=0;
+			if (is_array($loc)) {
+				$ttl = $loc[1];
+				$loc = $loc[0];
+			}
 			$locs = array_map(function($val) use ($app) { return $app['path'].$val; },$this->f3->split($loc));
-			$this->f3->set('LOCALES',implode(';',$locs).';'.$this->f3->get('LOCALES'));
+			$this->f3->set('LOCALES',implode(';',$locs).';'.$this->f3->get('LOCALES'),$ttl);
 		}
 
 		$this->f3->copy('CORE.active_app','COMPONENTS.'.$key);
