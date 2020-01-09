@@ -81,15 +81,16 @@ class Event extends Prefab {
 	 * @return mixed
 	 */
 	public function broadcast($key, $args=null, &$context=array(), $hold=true) {
-		if (!$this->f3->exists($this->ekey.$key, $e))
+		if (!$this->f3->{$this->ekey.$key})
 			return $args;
+		else $e = $this->f3->{$this->ekey.$key};
 		$descendants=array();
 		foreach($e as $nkey=>$nval)
 			if (is_string($nkey))
 				$descendants[] = $nkey;
 		if ($descendants)
 			foreach($descendants as $dkey) {
-				if ($this->f3->exists($this->ekey.$key.'.'.$dkey, $e)) {
+				if (($e = $this->f3->{$this->ekey.$key.'.'.$dkey})) {
 					$listeners = array();
 					$ev=array(
 						'name'=>$key.'.'.$dkey,
@@ -137,7 +138,7 @@ class Event extends Prefab {
 				'name' => $key,
 				'key' => array_pop($expl)
 			);
-			if ($this->f3->exists($this->ekey.$key,$e) && !empty($e)) {
+			if (($e = $this->f3->{$this->ekey.$key}) && !empty($e)) {
 				$listeners=array();
 				foreach ($e as $nkey=>$nval)
 					if (is_numeric($nkey))

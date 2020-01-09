@@ -58,7 +58,7 @@ class RouteHandler {
 	 * @param bool $scoped
 	 */
 	public function route($pattern,$handler,$ttl=0,$kbps=0) {
-		$prepend = $this->f3->get('APP.ROUTE');
+		$prepend = $this->f3->{'APP.ROUTE'};
 		if ($prepend)
 			$pattern = preg_replace([
 				'/(\/.+$)/',
