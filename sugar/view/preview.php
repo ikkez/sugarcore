@@ -48,9 +48,7 @@ class Preview extends Base implements TemplateInterface {
 	 * @return mixed
 	 */
 	function render($mime=NULL) {
-		if (!empty($this->data))
-			\Base::instance()->mset($this->data);
-		return $this->engine->render($this->filePath,$mime);
+		return $this->engine->render($this->filePath,$mime,$this->data);
 	}
 
 	/**

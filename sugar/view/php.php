@@ -17,7 +17,6 @@ class PHP extends Base implements TemplateInterface {
 	 * Template constructor.
 	 */
 	function __construct() {
-//		$this->engine = \View::instance();
 		$this->engine = new \View();
 	}
 
@@ -49,9 +48,7 @@ class PHP extends Base implements TemplateInterface {
 	 * @return mixed
 	 */
 	function render($mime=NULL) {
-		if (!empty($this->data))
-			\Base::instance()->mset($this->data);
-		return $this->engine->render($this->filePath,$mime);
+		return $this->engine->render($this->filePath,$mime,$this->data);
 	}
 
 	/**

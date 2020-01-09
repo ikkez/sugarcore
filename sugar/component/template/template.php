@@ -81,10 +81,6 @@ class Template extends Component implements TemplateInterface {
 			$engine->filter('date',function($val) {
 				return \Base::instance()->format('{0,date}',strtotime($val));
 			});
-			// TODO: remove that, it's included in latest F3 core dev
-			$engine->filter('nl2br',function($val) {
-				return nl2br($val);
-			});
 			$engine->filter('clean',function($val,$args=NULL) {
 				return $this->fw->clean($val,$args);
 			});
@@ -102,12 +98,6 @@ class Template extends Component implements TemplateInterface {
 					$this->broadcast('log.warning',['msg'=>'File not found: "'.$filePath.'"'],$this);
 				}
 			]);
-//			\Template\Tags\Image::init('img',$engine,[
-//				'temp_dir' => 'ui/compressed/img/',
-//				'not_found_callback' => function($filePath) {
-//					$this->broadcast('log.warning',['msg'=>'File not found: "'.$filePath.'"'],$this);
-//				}
-//			]);
 			$engine->extend('pagebrowser','\Pagination::renderTag');
 		}
 
@@ -127,11 +117,16 @@ class Template extends Component implements TemplateInterface {
 	 * @return mixed
 	 */
 	function render() {
-
-		$this->view->baseURL=$this->baseURL;
+		
+		$this->view->baseURL = $this->baseURL ?: '';
 
 		if ($this->template)
 			$this->view->setTemplate($this->template);
+
+		if ($this->config['use_hive']) {
+			$this->view->setData($this->getData() +
+				array_diff_key($this->fw->hive(),array_flip($this->config['exclude_hive_vars'])));
+		}
 
 		$this->emit('render',[
 			'fileName'=>$this->template,
@@ -189,7 +184,7 @@ class Template extends Component implements TemplateInterface {
 	 * @param $data
 	 */
 	function setData($data) {
-		$this->data = $data;
+		$this->view->setData($data);
 	}
 
 	/**
@@ -197,7 +192,7 @@ class Template extends Component implements TemplateInterface {
 	 * @return array
 	 */
 	function getData() {
-		return $this->data;
+		return $this->view->getData();
 	}
 
 	function __call($name,$arguments) {
