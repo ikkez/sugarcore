@@ -81,7 +81,7 @@ abstract class Base extends Cortex implements CursorInterface {
 
 		$this->fw = \Base::instance();
 		$this->registry = Registry::instance();
-		$this->ev = \Event::instance();
+		$this->ev = \Sugar\Event::instance();
 
 		if ($this->is_component) {
 			// load as custom defined component

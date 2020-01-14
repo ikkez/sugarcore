@@ -15,10 +15,10 @@ trait ComponentTrait {
 	/** @var \Base */
 	protected $fw;
 
-	/** @var \Event */
+	/** @var \Sugar\Event */
 	protected $ev;
 
-	/** @var \Event */
+	/** @var \Sugar\Event */
 	protected $ev_local;
 
 	/** @var Registry */
@@ -41,7 +41,7 @@ trait ComponentTrait {
 		if (!$this->fw)
 			$this->fw = \Base::instance();
 		if (!$this->ev)
-			$this->ev = \Event::instance();
+			$this->ev = \Sugar\Event::instance();
 		if (!$this->registry)
 			$this->registry = Registry::instance();
 
