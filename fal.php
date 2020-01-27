@@ -42,7 +42,7 @@ class FAL extends Magic
 								\FAL\MetaStorageInterface $metaAdapter = NULL)
 	{
 		$this->fs = $filesystemAdapter;
-		if(is_null($metaAdapter))
+		if (is_null($metaAdapter))
 			$metaAdapter = new \FAL\MetaFileStorage($filesystemAdapter);
 		$this->metaHandle = $metaAdapter;
 		$this->meta = array();
@@ -94,6 +94,22 @@ class FAL extends Magic
 		return true;
 	}
 
+	function meta() {
+		return $this->metaHandle;
+	}
+
+	/**
+	 * return general file idenfitier
+	 * @return string
+	 */
+	function getUUID() {
+		if (method_exists($this->metaHandle,'getUUID'))
+			$id = $this->metaHandle->getUUID();
+		else
+			$id = $this->getCacheHash($this->file);
+		return $id;
+	}
+
 	/**
 	 * loads a file and it's meta data
 	 * @param string $file
@@ -135,7 +151,7 @@ class FAL extends Magic
 	 * @param $file
 	 * @return string
 	 */
-	protected function getCacheHash ($file)
+	protected function getCacheHash($file)
 	{
 		if(is_null($this->cacheHash)) {
 			$fs_class = explode('\\', get_class($this->fs));
