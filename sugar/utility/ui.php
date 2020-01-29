@@ -53,7 +53,12 @@ class UI extends \Prefab {
 	 * @return string
 	 */
 	public function alias($name,$args=array()) {
-		return ltrim($this->fw->alias($name,$args),'/');
+		if (isset($this->fw->{'ALIASES.'.$name}))
+			return ltrim($this->fw->alias($name,$args),'/');
+		else {
+			// alias not found
+			return '';
+		}
 	}
 
 	/**
