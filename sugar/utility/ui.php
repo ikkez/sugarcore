@@ -2,6 +2,8 @@
 
 namespace Sugar\Utility;
 
+use Sugar\Event;
+
 class UI extends \Prefab {
 
 	protected $fw;
@@ -57,6 +59,7 @@ class UI extends \Prefab {
 			return ltrim($this->fw->alias($name,$args),'/');
 		else {
 			// alias not found
+			Event::instance()->emit('log.warning',['msg'=>'ALIAS not found','alias'=>$name]);
 			return '';
 		}
 	}
