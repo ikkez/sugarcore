@@ -104,6 +104,8 @@ class RouteHandler {
 //				}}
 				$reg = \Sugar\Service\Registry::instance();
 				$conf = $reg->load($parts[1]);
+				if (!$conf)
+					$this->f3->error(404,'Routing to not existing component: '.$parts[1]);
 				$reg->mapClassesToComponents([
 					$conf['class'] => $parts[1]
 				]);
