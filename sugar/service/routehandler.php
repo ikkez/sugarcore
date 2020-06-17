@@ -97,11 +97,11 @@ class RouteHandler {
 					if (isset($args[$dyn])) {
 						$parts[1]=$args[$dyn];
 				}}
-//				if ($parts[3][0]=='@') {
-//					$dyn=substr($parts[3],1);
-//					if (isset($args[$dyn])) {
-//						$parts[3]=$args[$dyn];
-//				}}
+				if ($parts[3][0]=='@') {
+					$dyn=substr($parts[3],1);
+					if (isset($args[$dyn])) {
+						$parts[3]=$args[$dyn];
+				}}
 				$reg = \Sugar\Service\Registry::instance();
 				$conf = $reg->load($parts[1]);
 				if (!$conf)
