@@ -17,7 +17,7 @@
         "ikkez/f3-events": "^1.0",
         "ikkez/f3-validation-engine": "^1.5",
         "ikkez/f3-template-directives": "^1.0",
-        "xfra35/f3-access": "^1.0",
+        "xfra35/f3-access": "dev-master#e0e7d76686364c0f062d0dd21d1ac796ccc1df89 as 1.1.2",
         "ext-json": "*"
     }
 }
