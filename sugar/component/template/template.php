@@ -90,15 +90,20 @@ class Template extends Component implements TemplateInterface {
 		}
 
 		if (($engine = $this->view->engine()) instanceof \Template) {
-			\Template\Tags\Form::initAll($engine);
-			\Template\Tags\Image::init('image',$engine,[
-				'temp_dir' => 'ui/compressed/img/',
-				'check_UI_path' => TRUE,
-				'not_found_callback' => function($filePath) {
-					$this->broadcast('log.warning',['msg'=>'File not found: "'.$filePath.'"'],$this);
-				}
-			]);
-			$engine->extend('pagebrowser','\Pagination::renderTag');
+			if ($this->config['ext_form']['enable'])
+				\Template\Tags\Form::initAll($engine);
+
+			if ($this->config['ext_image']['enable']) {
+				\Template\Tags\Image::init('image',$engine,[
+					'temp_dir' => $this->config['ext_image']['temp_dir'],
+					'check_UI_path' => $this->config['ext_image']['check_ui_path'],
+					'not_found_callback' => function($filePath) {
+						$this->broadcast('log.warning',['msg'=>'File not found: "'.$filePath.'"'],$this);
+					}
+				]);
+			}
+			if ($this->config['ext_pagebrowser']['enable'])
+				$engine->extend('pagebrowser','\Pagination::renderTag');
 		}
 
 		// compute base path
@@ -117,7 +122,7 @@ class Template extends Component implements TemplateInterface {
 	 * @return mixed
 	 */
 	function render() {
-		
+
 		$this->view->baseURL = $this->baseURL ?: '';
 
 		if ($this->template)
