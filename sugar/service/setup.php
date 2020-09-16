@@ -73,7 +73,7 @@ class Setup extends \Prefab {
 		foreach ($files as $path) {
 			if (!file_exists($path)) {
 				$logs[]='Creating file: '.$path;
-				file_put_contents($path,'');
+				file_put_contents($path,'{}');
 			}
 		}
 		return $logs;
