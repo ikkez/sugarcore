@@ -96,6 +96,7 @@ class Template extends Component implements TemplateInterface {
 			if ($this->config['ext_image']['enable']) {
 				\Template\Tags\Image::init('image',$engine,[
 					'temp_dir' => $this->config['ext_image']['temp_dir'],
+					'public_path' => $this->config['ext_image']['public_path'],
 					'check_UI_path' => $this->config['ext_image']['check_ui_path'],
 					'not_found_callback' => function($filePath) {
 						$this->broadcast('log.warning',['msg'=>'File not found: "'.$filePath.'"'],$this);
