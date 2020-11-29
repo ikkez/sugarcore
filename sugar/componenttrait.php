@@ -194,6 +194,10 @@ trait ComponentTrait {
 	function getComponentPath() {
 		$basePath = new \ReflectionObject($this);
 		$root = $this->fw->fixslashes($this->fw->ROOT.$this->fw->BASE);
+		if (strlen($root) > getcwd()) {
+			// TODO: need public path
+			$root=getcwd();
+		}
 		return trim(str_replace($root,'',
 				$this->fw->fixslashes(dirname($basePath->getFileName()))),'/').'/';
 	}

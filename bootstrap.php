@@ -27,15 +27,18 @@ error_reporting(-1);
 $f3->BITMASK = ENT_COMPAT|ENT_SUBSTITUTE;
 
 // normalize ROOT
-$suffix = str_replace($f3->ROOT,'',getcwd());
-if (!empty($f3->BASE)) {
-	$pos = strpos($f3->fixslashes($suffix),$f3->fixslashes($f3->BASE));
-	if ($pos !== FALSE)
-		$suffix=substr($suffix,0,-strlen($f3->BASE));
-}
-if (!empty($suffix)) {
-	$f3->concat('ROOT',$suffix);
-	$f3->concat('SERVER.DOCUMENT_ROOT',$suffix);
+$cwd=getcwd();
+if (strlen($f3->ROOT)<$cwd) {
+	$suffix = str_replace($f3->ROOT,'',$cwd);
+	if (!empty($f3->BASE)) {
+		$pos = strpos($f3->fixslashes($suffix),$f3->fixslashes($f3->BASE));
+		if ($pos !== FALSE)
+			$suffix=substr($suffix,0,-strlen($f3->BASE));
+	}
+	if (!empty($suffix)) {
+		$f3->concat('ROOT',$suffix);
+		$f3->concat('SERVER.DOCUMENT_ROOT',$suffix);
+	}
 }
 
 // init core config
