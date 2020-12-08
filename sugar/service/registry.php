@@ -8,6 +8,7 @@ use Sugar\Component;
 class Registry extends \Prefab {
 
 	const ERROR_UnitNotInstalled = 'Component or Class of type "%s" not found in Registry';
+	const ERROR_ParentComponentNotFound = 'Component config for "%s" not found. Cannot create component "%s"';
 
 	protected
 		$cached_configs = [],
@@ -46,8 +47,11 @@ class Registry extends \Prefab {
 			// load parent config, if this is an instance of another component
 			if (isset($config['instance'])) {
 				$inheritConfigOnly = !empty($config['class']);
-				$config = array_replace_recursive(
-					$this->load($config['instance']),$config);
+				$parentConf = $this->load($config['instance']);
+				if (!$parentConf) {
+					\Base::instance()->error(500,sprintf(self::ERROR_ParentComponentNotFound,$config['instance'],$name));
+				}
+				$config = array_replace_recursive($parentConf,$config);
 				if ($inheritConfigOnly)
 					unset($config['instance']);
 			}
