@@ -44,9 +44,16 @@ class Registry extends \Prefab {
 			$config = $this->cached_configs[$name];
 
 		elseif ($config = $this->exists($name)) {
+			$inheritConfigOnly = !empty($config['class']);
+			// auto component instance inheritance
+			if ($inheritConfigOnly && empty($config['instance']) && class_exists($config['class'])) {
+				$parentComp = $this->findParentComponent($config['class']);
+				if ($parentComp) {
+					$config['instance'] = $parentComp;
+				}
+			}
 			// load parent config, if this is an instance of another component
 			if (isset($config['instance'])) {
-				$inheritConfigOnly = !empty($config['class']);
 				$parentConf = $this->load($config['instance']);
 				if (!$parentConf) {
 					\Base::instance()->error(500,sprintf(self::ERROR_ParentComponentNotFound,$config['instance'],$name));
@@ -55,9 +62,17 @@ class Registry extends \Prefab {
 				if ($inheritConfigOnly)
 					unset($config['instance']);
 			}
+			// also cache non existing, to reduce resource querying
 			$this->cached_configs[$name] = $config;
-		} else {
-			// cache non existing, to reduce resource querying
+
+		} elseif (class_exists($name)) {
+			$config=false;
+			// auto inherited component discovery
+			$parentComp = $this->findParentComponent($name);
+			if ($parentComp) {
+				$config = $this->load($parentComp);
+				$config['class'] = $name;
+			}
 			$this->cached_configs[$name] = $config;
 		}
 
@@ -67,6 +82,23 @@ class Registry extends \Prefab {
 
 		return $config;
 
+	}
+
+	/**
+	 * get inherited component key from parent class
+	 * @param string $name
+	 * @return bool|array
+	 */
+	protected function findParentComponent($className) {
+		$parents = class_parents($className);
+		$comps = array_merge($this->resource->getAll(), $this->fallback_resource->getAll());
+		foreach ($parents?:[] as $parent) {
+			foreach ($comps as $key=>$conf) {
+				if (isset($conf['class']) && $conf['class'] == $parent)
+					return $key;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -195,18 +227,11 @@ class Registry extends \Prefab {
 	 */
 	function mapClassesToComponents($rules) {
 		foreach ($rules as $class=>$name) {
-
-			if ($config = $this->exists($name)) {
-				// load parent config, if this is an instance of another component
-				if (isset($config['instance'])) {
-					$config = array_replace_recursive(
-						$this->load($config['instance']),$config);
-				}
-
+			$config = $this->load($name);
+			if ($config) {
 				$config['class'] = $class;
 				$this->cached_configs[$class] = $config;
-
-				$this->setDicRules($class,$config);
+//				$this->setDicRules($class,$config);
 			}
 		}
 	}
