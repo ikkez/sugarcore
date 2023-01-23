@@ -46,7 +46,7 @@ class Registry extends \Prefab {
 		elseif ($config = $this->exists($name)) {
 			$inheritConfigOnly = !empty($config['class']);
 			// auto component instance inheritance
-			if ($inheritConfigOnly && empty($config['instance']) && class_exists($config['class'])) {
+			if ($inheritConfigOnly && empty($config['instance']) && class_exists($config['class']??'')) {
 				$parentComp = $this->findParentComponent($config['class']);
 				if ($parentComp) {
 					$config['instance'] = $parentComp;
@@ -65,7 +65,7 @@ class Registry extends \Prefab {
 			// also cache non existing, to reduce resource querying
 			$this->cached_configs[$name] = $config;
 
-		} elseif (class_exists($name)) {
+		} elseif (class_exists($name ?? '')) {
 			$config=false;
 			// auto inherited component discovery
 			$parentComp = $this->findParentComponent($name);

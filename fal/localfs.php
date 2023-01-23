@@ -194,7 +194,8 @@ class FileFilter extends \FilterIterator {
 		else    parent::__construct($dir);
 	}
 
-	public function accept() {
+	public function accept(): bool
+    {
 		if ($this->isDot()) return false;
 		if ($this->pattern) return preg_match($this->pattern, $this->getFilename());
 		return true;

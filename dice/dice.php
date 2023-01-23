@@ -171,7 +171,20 @@ class Dice {
 		return is_string($param) && $createFromString?$this->create($param):$param;
 	}
 
-	/**
+    public function resolveParam(\ReflectionParameter $parameter): mixed
+    {
+        $refType = $parameter->getType();
+        if ($refType instanceof \ReflectionNamedType) {
+            if (!$refType->isBuiltin()) {
+                return $refType->getName();
+            }
+            if ($parameter->isDefaultValueAvailable()) {
+                return $parameter->getDefaultValue();
+            }
+        }
+        return null;
+    }
+    /**
 	 * Returns a closure that generates arguments for $method based on $rule and any $args passed into the closure
 	 * @param object $method An instance of ReflectionMethod (see: {@link http:// php.net/manual/en/class.reflectionmethod.php})
 	 * @param array $rule The container can be fully configured using rules provided by associative arrays. See {@link https://r.je/dice.html#example3} for a description of the rules.
@@ -181,7 +194,7 @@ class Dice {
 		// Cache some information about the parameter in $paramInfo so (slow) reflection isn't needed every time
 		$paramInfo=[];
 		foreach ($method->getParameters() as $param) {
-			$class=$param->getClass()?$param->getClass()->name:NULL;
+			$class=$this->resolveParam($param);
 			$paramInfo[]=[$class,$param,isset($rule['substitutions']) &&
 				array_key_exists($class,$rule['substitutions'])];
 		}
