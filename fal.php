@@ -203,7 +203,7 @@ class FAL extends Magic
 	 */
 	public function &get($key)
 	{
-		$out = ($this->exists($key)) ? $this->meta[$key] : false;
+		$out = ($this->exists($key)) ? $this->meta[$key] : null;
 		return $out;
 	}
 
@@ -243,7 +243,7 @@ class FAL extends Magic
 	 */
 	public function reset()
 	{
-		$this->meta = false;
+		$this->meta = [];
 		$this->file = false;
 		$this->content = false;
 		$this->changed = false;
