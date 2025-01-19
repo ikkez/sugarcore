@@ -22,7 +22,8 @@ class Dependency extends \Prefab {
 
 	protected
 		$f3,
-		$registry;
+		$registry,
+		$config;
 
 	function __construct(Registry $registry) {
 		/** @var \Base $f3 */
