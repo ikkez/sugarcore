@@ -39,7 +39,7 @@ class FAL extends Magic
 		$f3;
 
 	public function __construct(\FAL\FileSystem $filesystemAdapter,
-								\FAL\MetaStorageInterface $metaAdapter = NULL)
+								?\FAL\MetaStorageInterface $metaAdapter = NULL)
 	{
 		$this->fs = $filesystemAdapter;
 		if (is_null($metaAdapter))

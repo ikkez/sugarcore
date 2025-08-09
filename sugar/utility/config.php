@@ -56,7 +56,7 @@ class Config extends \Prefab {
 						// Mark quoted strings with 0x00 whitespace
 						str_getcsv(preg_replace(
 							'/(?<!\\\\)(")(.*?)\1/',
-							"\\1\x00\\2\\1",trim($rval)))
+							"\\1\x00\\2\\1",trim($rval)), ',', '"', '\\')
 					);
 					preg_match('/^(?<section>[^:]+)/',
 						$sec,$parts);
