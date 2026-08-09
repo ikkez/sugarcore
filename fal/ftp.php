@@ -165,7 +165,7 @@ class FTP implements FileSystem
 				$chunks = preg_split('/\s+/', $node);
 				list($item['rights'], $item['num'], $item['owner'], $item['group'],
 					 $item['size'], $item['month'], $item['day'], $item['time']) = $chunks;
-				$item['type'] = ($chunks[0]{0} === 'd') ? 'dir' : 'file';
+				$item['type'] = (substr($chunks[0],0,1) === 'd') ? 'dir' : 'file';
 				array_splice($chunks, 0, 8);
 				$name = implode(" ", $chunks);
 				if($name != '.' && $name != '..') {

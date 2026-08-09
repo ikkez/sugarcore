@@ -140,14 +140,14 @@ class App {
 		$app_path = $this->path.rtrim($key,'/').'/';
 
 		if (!preg_match('/^\w+$/',$key))
-			user_error(sprintf('Invalid app key %s',$this->f3->stringify($key)),E_USER_ERROR);
+            throw new \Exception(sprintf('Invalid app key %s',$this->f3->stringify($key)));
 
 		// file system checks
 		if (is_dir($app_path))
 			trigger_error('Application folder already exists',E_USER_NOTICE);
 
 		if (!is_writeable($this->path))
-			trigger_error('Application folder is not writeable',E_USER_ERROR);
+			throw new \Exception('Application folder is not writeable');
 
 
 		// create application path

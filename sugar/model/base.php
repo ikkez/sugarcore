@@ -112,7 +112,7 @@ abstract class Base extends Cortex implements CursorInterface {
 	}
 
 	function config() {
-		trigger_error('Models cannot be instantiated as component directly. Set $_name property instead.',E_USER_ERROR);
+        throw new \Exception('Models cannot be instantiated as component directly. Set $_name property instead.');
 	}
 
 	/**

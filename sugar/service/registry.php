@@ -107,7 +107,7 @@ class Registry extends \Prefab {
 	 * @param array $config
 	 * @param Component|null $parent
 	 */
-	function setDicRules($name,$config,Component $parent=null) {
+	function setDicRules($name,$config,?Component $parent=null) {
 		// configure Dependency Injections
 		$rules = [
 			'call' => [
